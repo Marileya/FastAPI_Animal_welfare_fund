@@ -6,13 +6,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.api.validators import (check_ability_to_delete, check_close_date,
                                 check_full_amount, check_name_duplicate,
                                 check_project_exists)
-
 from app.core.db import get_async_session
 from app.core.user import current_superuser
-from app.crud.charityproject import charity_project_crud
+from app.crud.charity_project import charity_project_crud
 from app.models import Donation
-from app.schemas.charityproject import (CharityProjectCreate, CharityProjectDB,
-                                        CharityProjectUpdate)
+from app.schemas.charity_project import (CharityProjectCreate,
+                                         CharityProjectDB,
+                                         CharityProjectUpdate)
 from app.services.investing import investing
 
 
@@ -23,8 +23,7 @@ router = APIRouter()
 async def get_all_projects(
     session: AsyncSession = Depends(get_async_session)
 ):
-    projects = await charity_project_crud.get_multi(session)
-    return projects
+    return await charity_project_crud.get_multi(session)
 
 
 @router.post('/',
@@ -37,11 +36,10 @@ async def create_project(
 ):
     await check_name_duplicate(project.name, session)
     new_project = await charity_project_crud.create(project, session)
-    new_project = await investing(
+    return await investing(
         obj=new_project,
         model=Donation,
         session=session)
-    return new_project
 
 
 @router.delete(
@@ -54,8 +52,7 @@ async def delete_project(
     session: AsyncSession = Depends(get_async_session)
 ):
     project = await check_ability_to_delete(project_id, session)
-    project = await charity_project_crud.remove(project, session)
-    return project
+    return await charity_project_crud.remove(project, session)
 
 
 @router.patch(
@@ -78,5 +75,4 @@ async def update_project(
             project.fully_invested = True
             project.close_date = datetime.now()
 
-    project = await charity_project_crud.update(project, obj_in, session)
-    return project
+    return await charity_project_crud.update(project, obj_in, session)

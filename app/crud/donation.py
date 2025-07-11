@@ -14,8 +14,7 @@ class CRUDDonation(CRUDBase):
     ) -> list[Donation]:
         donations = await session.execute(
             select(Donation).where(Donation.user_id == user.id))
-        donations = donations.scalars().all()
-        return donations
+        return donations.scalars().all()
 
 
 donation_crud = CRUDDonation(Donation)

@@ -10,6 +10,8 @@ class Settings(BaseSettings):
     secret: str = 'SECRET'
     first_superuser_email: Optional[EmailStr] = None
     first_superuser_password: Optional[str] = None
+    life_token = 3600
+    min_password = 3
 
     class Config:
         env_file = '.env'

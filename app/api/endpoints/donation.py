@@ -21,8 +21,7 @@ router = APIRouter()
 async def get_all_donats(
     session: AsyncSession = Depends(get_async_session)
 ):
-    donations = await donation_crud.get_multi(session)
-    return donations
+    return await donation_crud.get_multi(session)
 
 
 @router.post('/',
@@ -34,12 +33,10 @@ async def create_donat(
         session: AsyncSession = Depends(get_async_session),
 ):
     new_donat = await donation_crud.create(donat, session, user)
-    new_donat = await investing(
+    return await investing(
         obj=new_donat,
         model=CharityProject,
         session=session)
-
-    return new_donat
 
 
 @router.get('/my',
@@ -48,5 +45,4 @@ async def get_donat_for_user(
         user: User = Depends(current_user),
         session: AsyncSession = Depends(get_async_session),
 ):
-    donats = await donation_crud.get_by_user(user, session)
-    return donats
+    return await donation_crud.get_by_user(user, session)
